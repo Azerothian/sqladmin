@@ -1,0 +1,32 @@
+{
+  "name": "sqladmin",
+  "version": "0.0.0",
+  "description": "sqladmin ========",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Azerothian/sqladmin.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Azerothian/sqladmin/issues"
+  },
+  "homepage": "https://github.com/Azerothian/sqladmin",
+  "dependencies": {
+    "debug": "^2.0.0",
+    "jquery": "^2.1.1",
+    "knex": "^0.6.22",
+    "pg": "^3.4.2",
+    "react": "^0.11.1",
+    "react-bootstrap": "^0.11.1"
+  },
+  "devDependencies": {
+    "brfs": "^1.2.0",
+    "browserify": "^5.11.1",
+    "coffeeify": "^0.7.0"
+  }
+}
