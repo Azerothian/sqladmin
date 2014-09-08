@@ -47,8 +47,8 @@ module.exports = React.createClass {
 
     div { className: "container" },
       form {className: "form-horizontal"},
-        Input { type: "text", label: "Username", labelClassName:"col-xs-2", wrapperClassName: "col-xs-10", ref: "txtUsername" }
-        Input { type: "password", label: "Password", labelClassName:"col-xs-2", wrapperClassName: "col-xs-10", ref: "txtPassword" }
+        Input { type: "text", label: "Username", labelClassName:"col-xs-2", wrapperClassName: "col-xs-10", ref: "txtUsername", defaultValue: "postgres" }
+        Input { type: "password", label: "Password", labelClassName:"col-xs-2", wrapperClassName: "col-xs-10", ref: "txtPassword", defaultValue: "12qwaszx" }
         Input { type: "text", label: "Host", labelClassName:"col-xs-2", wrapperClassName: "col-xs-10", defaultValue:"127.0.0.1", ref: "txtHost" }
         Input { type: "text", label: "Port", labelClassName:"col-xs-2", wrapperClassName: "col-xs-10", defaultValue:"5432", ref: "txtPort" }
         Input { type: "select", label: "Database Type", labelClassName:"col-xs-2", wrapperClassName: "col-xs-10", defaultValue:"pg", ref:"ddlDatabaseType" },
