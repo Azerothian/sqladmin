@@ -1,0 +1,12 @@
+<% extend 'layout' %>
+<div id="react-component">
+</div>
+
+
+<% block 'header' : %>
+  <script src="/lib/react/react.min.js" type="text/javascript"></script>
+<% end %>
+
+<% block 'footer' : %>
+  <script src="/react/<%- @path %>" type="text/javascript"></script>
+<% end %>
