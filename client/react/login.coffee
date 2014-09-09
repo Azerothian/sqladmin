@@ -31,8 +31,6 @@ module.exports = React.createClass {
       context: @
     }
     $.ajax(options).done () ->
-      debug "response", arguments
-      @setState { isLoading: false }
       window.location = "/"
 
   render: () ->
@@ -42,16 +40,55 @@ module.exports = React.createClass {
       bsStyle:"primary"
       onClick: if isLoading then null else @onLoginClick
       disabled: isLoading
+      className: "pull-right"
     }
     loginButtonText = if isLoading then "Please Wait" else "Login"
 
+    labelClassName = "col-xs-12 col-sm-4"
+    wrapperClassName = "col-xs-12 col-sm-8"
+
     div { className: "container" },
       form {className: "form-horizontal"},
-        Input { type: "text", label: "Username", labelClassName:"col-xs-2", wrapperClassName: "col-xs-10", ref: "txtUsername", defaultValue: "postgres" }
-        Input { type: "password", label: "Password", labelClassName:"col-xs-2", wrapperClassName: "col-xs-10", ref: "txtPassword", defaultValue: "12qwaszx" }
-        Input { type: "text", label: "Host", labelClassName:"col-xs-2", wrapperClassName: "col-xs-10", defaultValue:"127.0.0.1", ref: "txtHost" }
-        Input { type: "text", label: "Port", labelClassName:"col-xs-2", wrapperClassName: "col-xs-10", defaultValue:"5432", ref: "txtPort" }
-        Input { type: "select", label: "Database Type", labelClassName:"col-xs-2", wrapperClassName: "col-xs-10", defaultValue:"pg", ref:"ddlDatabaseType" },
+        Input {
+          type: "text"
+          label: "Username"
+          labelClassName: labelClassName
+          wrapperClassName: wrapperClassName
+          ref: "txtUsername"
+          defaultValue: "postgres"
+        }
+        Input {
+          type: "password"
+          label: "Password"
+          labelClassName: labelClassName
+          wrapperClassName: wrapperClassName
+          ref: "txtPassword"
+          defaultValue: "12qwaszx"
+        }
+        Input {
+          type: "text"
+          label: "Host"
+          labelClassName: labelClassName
+          wrapperClassName: wrapperClassName
+          defaultValue:"127.0.0.1"
+          ref: "txtHost"
+        }
+        Input {
+          type: "text"
+          label: "Port"
+          labelClassName: labelClassName
+          wrapperClassName: wrapperClassName
+          defaultValue:"5432"
+          ref: "txtPort"
+        }
+        Input {
+          type: "select"
+          label: "Database Type"
+          labelClassName: labelClassName
+          wrapperClassName: wrapperClassName
+          defaultValue:"pg"
+          ref:"ddlDatabaseType"
+        },
           option { value:"pg" }, "Postgresql"
           option { value:"mysql" }, "MySql"
           option { value:"mariasql" }, "MariaSql"

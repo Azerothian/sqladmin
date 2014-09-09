@@ -1,5 +1,5 @@
 debug = require("debug")("sqladmin:bbmixin")
-
+_ = require "underscore"
 module.exports = {
   componentDidMount: ->
 
@@ -7,7 +7,7 @@ module.exports = {
       debug "updateFunc"
       @forceUpdate()
     for model in @getBackboneModels()
-      model.on "add change remove", updateFunc, @
+      model.on "add change remove", _.throttle(updateFunc, 100), @
 
   componentWillUnmount: ->
     for model in @getBackboneModels()

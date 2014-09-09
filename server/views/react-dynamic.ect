@@ -16,7 +16,7 @@
 
 <% else : %>
 <div id="react-component">
-  
+
 </div>
 <% end %>
 
@@ -27,6 +27,8 @@
 <% block 'scripts' : %>
   <script src="/react/<%- @path %>.js" type="text/javascript"></script>
   <script type="text/javascript">
+
+    window._csrf = "<%-@props._csrf %>";
     var app = require('app');
     var r = React;
     if(!r) {
