@@ -1,5 +1,7 @@
 <% extend 'layout' %>
 
+
+<% if !@disableServer : %>
 <%
   React = require "react"
   component = require("#{@config.paths.react}/#{@path}")
@@ -7,10 +9,16 @@
   componentProps = if @props? then @props else {}
 %>
 
+
 <div id="react-component">
   <%- React.renderComponentToString component(componentProps) %>
 </div>
 
+<% else : %>
+<div id="react-component">
+  
+</div>
+<% end %>
 
 <% block 'header' : %>
   <script src="/lib/react/react.min.js" type="text/javascript"></script>

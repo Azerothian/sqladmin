@@ -1,4 +1,5 @@
 module.exports = (expressApp, logic) ->
   return {
-    root: require("./root")(expressApp, logic)
+    auth: require("./auth")(expressApp, logic)
+    api: require("./api")(expressApp, logic)
   }

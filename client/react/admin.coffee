@@ -1,53 +1,34 @@
 React = require "react"
+BackboneMixin = require "../bb.mixin"
 
-_ = require "underscore"
-backbone = require "backbone"
+{div, ul, li, a, thead, tbody, tr, th, td} = React.DOM
+{Col, TabbedArea, TabPane, Table} = require "react-bootstrap"
 
-database = require "../models/database"
-
-dbcollection = new database.collection()
 debug = require("debug")("sqladmin:admin")
 
-{div, ul, li, a} = React.DOM
 
-{Col} = require "react-bootstrap"
-
-BackboneMixin = {
-  componentDidMount: ->
-    func = (model) ->
-      model.on "add change remove", @forceUpdate.bind(@, null), @
-    @getBackboneModels().forEach func, @
-
-  componentWillUnmount: ->
-
-    func = (model) ->
-      model.off null, null, @
-    @getBackboneModels().forEach func, @
-}
+AppData = require("../appdata")
 
 
 DatabaseList = React.createClass {
+
   mixins: [BackboneMixin]
-  getInitialState: () ->
-    {
-      selected: "postgres"
-    }
 
   getBackboneModels: () ->
-    [@props.databases]
+    [AppData, AppData.get("databases")]
 
-  componentDidMount: () ->
-    @props.databases.fetch()
-
+  onItemClick: (dbname) ->
+    return () ->
+      AppData.set "selecteddb", dbname
 
   render: () ->
-
-    items = @props.databases.map (db) =>
+    items = AppData.get("databases").map (db) =>
       dbname = db.get "name"
-      activeClass = if dbname is @state.selected then "active" else ""
+      activeClass = if dbname is AppData.get("selecteddb") then "active" else ""
       itemOpts = {
         className: "list-group-item #{activeClass}"
-        href:"javscript:;"
+        href:"javascript:;"
+        onClick: @onItemClick(dbname)
       }
       a itemOpts, db.get "name"
     div { className: "list-group" },
@@ -56,58 +37,41 @@ DatabaseList = React.createClass {
 }
 
 TablesList = React.createClass {
-  
+  mixins: [BackboneMixin]
+
+  getBackboneModels: () ->
+    [AppData.get("tables")]
+  render: ->
+    Table { striped: true, bordered: true, hover: true },
+      thead {},
+        tr {},
+          th {}, "Schema"
+          th {}, "Table Name"
+      tbody {},
+        AppData.get("tables").map (table) ->
+          tr {},
+            td {}, table.get "schema"
+            td {}, table.get "name"
 }
 
 
 DatabaseTabs = React.createClass {
-  getInitialState: () ->
-    {
-      selected: "tables"
-    }
-  setTab: (name) ->
-    return () =>
-      if @state.selected is not name
-        @setState { selected: name }
-  isTabActive: (name) ->
-    return if @state.selected is name then "active" else ""
+  render: ->
+    TabbedArea {defaultActiveKey: 1},
+      TabPane {key: 1, tab: "Tables"},
+        TablesList {}
+      TabPane {key: 1, tab: "Other"},
+        div {}, "Other stuff"
 
-  createTab: (name, displayName) ->
-    li { className: @isTabActive("tables") },
-      a {
-        href: "javascript:;",
-        onClick: @setTab("tables")
-      }, "Tables"
-
-  render: () ->
-
-    currentTab = undefined
-    switch @state.selected
-      when "tables"
-        currentTab =
-
-
-    div {},
-      ul { className: "nav nav-tabs", role: "tablist" },
-        @createTab("tables", "Tables")
-      div { className: "tab-content" },
-        currentTab
 }
 
 
 
 module.exports = React.createClass {
-  getInitialState: () ->
-    {
-      database: "postgres"
-    }
-  onDatabaseSelect: (dbname) ->
-    @setState { database: dbname }
-
   render: () ->
     div { className: "container"},
-      Col { xs: 12, sm: 4 },
-        DatabaseList { database: @state.database, databases: dbcollection, onSelect: onDatabaseSelect  }
-      Col { xs: 12, sm: 8 },
-        DatabaseTabs { database: @state.database }
+      Col { xs: 12, sm: 3 },
+        DatabaseList { }
+      Col { xs: 12, sm: 9 },
+        DatabaseTabs { }
 }
