@@ -42,32 +42,34 @@ class RawData extends Backbone.Model
   defaults:
     query: undefined
     db: undefined
+  run: (query) =>
+    if !@get("db")?
+      debug "unable to send, no db set"
+      return
+
+    @get("dataset").reset()
+
+    options = {
+      url: "/api/raw"
+      dataType: "json"
+      type: "POST"
+      contentType: "application/json"
+      data: JSON.stringify {
+        "_csrf": window._csrf
+        "dbname": @get "db"
+        "query": query
+      }
+      context: @
+    }
+
+    jQuery.ajax(options).done (data, status, xhr) ->
+      if data? and data.length > 0
+        @get("dataset").add data
+
   constructor: () ->
     super
     @set "dataset", new Backbone.Collection()
-    @on "change:query", () =>
-      if !@get("db")?
-        debug "unable to send, no db set"
-        return
 
-      @get("dataset").reset()
-
-      options = {
-        url: "/api/raw"
-        dataType: "json"
-        type: "POST"
-        contentType: "application/json"
-        data: JSON.stringify {
-          "_csrf": window._csrf
-          "dbname": @get "db"
-          "query": @get "query"
-        }
-        context: @
-      }
-
-      jQuery.ajax(options).done (data, status, xhr) ->
-        if data? and data.length > 0
-          @get("dataset").add data
 
 class AppData extends Backbone.Model
   defaults:

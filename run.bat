@@ -1,1 +1,1 @@
-grunt build && coffee --nodejs --debug server/app.coffee
+grunt build && DEBUG=* coffee --nodejs --debug server/app.coffee

@@ -114,7 +114,8 @@ TablesList = React.createClass {
 RawInterface = React.createClass {
 
   runQuery: () ->
-    AppData.get("rawdata").set "query", @refs.editor.getValue()
+    debug "runQuery"
+    AppData.get("rawdata").run @refs.editor.getValue()
 
   render: ->
     div {},
