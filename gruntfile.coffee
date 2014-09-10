@@ -25,13 +25,19 @@ module.exports = (grunt) ->
         reporter: 'tap'
       all:
         src: ['build/tests/**/*.js']
+    "download-atom-shell":
+      version: '0.16.2'
+      outputDir: 'bin'
 
+  grunt.loadNpmTasks 'grunt-download-atom-shell'
+  grunt.registerTask 'install', 'download-atom-shell'
+  grunt.registerTask 'default', '', [ 'install' ]
   grunt.loadNpmTasks 'grunt-nsp-package'
   grunt.loadNpmTasks 'grunt-contrib-copy'
   grunt.loadNpmTasks 'grunt-notify'
   grunt.loadNpmTasks 'grunt-simple-mocha'
 
-
+  grunt.registerTask 'install', 'download-atom-shell'
   grunt.registerTask 'test', '', [ 'build', 'simplemocha' ]
   grunt.registerTask 'default', 'Compiles all of the assets and copies the files to the build directory.', ['validate-package','build' ]
   grunt.registerTask 'build', 'Builds the application', [ 'copy', 'broify', 'notify:complete' ]
