@@ -215,6 +215,7 @@ module.exports = React.createClass {
       Col { xs: 12, sm: 3 },
         DatabaseList { }
         SchemaList {}
+        a { className: "btn btn-danger col-xs-12", href: "/logout" }, "Logout"
 
       Col { xs: 12, sm: 9 },
         DatabaseTabs { }

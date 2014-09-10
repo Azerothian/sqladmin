@@ -1,1 +1,2 @@
-grunt build && DEBUG=* coffee --nodejs --debug server/app.coffee
+SET DEBUG=sqladmin*
+grunt build && coffee --nodejs --debug server/app.coffee

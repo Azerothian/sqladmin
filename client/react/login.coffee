@@ -22,11 +22,13 @@ module.exports = React.createClass {
       contentType: "application/json"
       data: JSON.stringify {
         "_csrf": @props._csrf
-        "username": @refs.txtUsername.getValue()
-        "password": @refs.txtPassword.getValue()
-        "host": @refs.txtHost.getValue()
-        "port": @refs.txtPort.getValue()
-        "databasetype": @refs.ddlDatabaseType.getValue()
+        "connectionOptions": {
+          "user": @refs.txtUsername.getValue()
+          "password": @refs.txtPassword.getValue()
+          "host": @refs.txtHost.getValue()
+          "port": @refs.txtPort.getValue()
+        }
+        "databaseType": @refs.ddlDatabaseType.getValue()
       }
       context: @
     }
@@ -49,6 +51,16 @@ module.exports = React.createClass {
 
     div { className: "container" },
       form {className: "form-horizontal"},
+        Input {
+          type: "select"
+          label: "Database Type"
+          labelClassName: labelClassName
+          wrapperClassName: wrapperClassName
+          defaultValue:"pg"
+          ref:"ddlDatabaseType"
+        },
+          option { value:"pg" }, "Postgresql"
+          option { value:"mysql" }, "MySql"
         Input {
           type: "text"
           label: "Username"
@@ -81,16 +93,5 @@ module.exports = React.createClass {
           defaultValue:"5432"
           ref: "txtPort"
         }
-        Input {
-          type: "select"
-          label: "Database Type"
-          labelClassName: labelClassName
-          wrapperClassName: wrapperClassName
-          defaultValue:"pg"
-          ref:"ddlDatabaseType"
-        },
-          option { value:"pg" }, "Postgresql"
-          option { value:"mysql" }, "MySql"
-          option { value:"mariasql" }, "MariaSql"
         Button loginButtonOptions, loginButtonText
 }

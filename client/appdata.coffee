@@ -43,9 +43,8 @@ class RawData extends Backbone.Model
     query: undefined
     db: undefined
   run: (query) =>
-    if !@get("db")?
-      debug "unable to send, no db set"
-      return
+
+    db = @get("db")
 
     @get("dataset").reset()
 
@@ -56,7 +55,7 @@ class RawData extends Backbone.Model
       contentType: "application/json"
       data: JSON.stringify {
         "_csrf": window._csrf
-        "dbname": @get "db"
+        "dbname": db
         "query": query
       }
       context: @
@@ -93,22 +92,26 @@ class AppData extends Backbone.Model
       @set "schema", undefined
       @get("schemas").reset()
       @get("tables").reset()
-      @get('schemas').fetch {
+      @get('schemas').fetch({
         data: $.param {
           dbname: @get "db"
         }
-      }
+      }).done () =>
+        schemas = @get("schemas")
+        if schemas.length > 0
+          @set 'schema', schemas.at(0).get "name"
+
     @on "change:schema", () =>
       if @get("schema")?
         @get("tables").reset()
-        @get('tables').fetch {
+        @get('tables').fetch({
           data: $.param {
             dbname: @get "db"
             schema: @get "schema"
-          }
-        }
+          },
+        })
 
-    @setDatabase("postgres")
+    #@setDatabase("postgres")
 
   setDatabase: (dbname) =>
     @set "db", dbname

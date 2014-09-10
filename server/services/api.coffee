@@ -1,75 +1,189 @@
 
-extend = (object, properties) ->
-  for key, val of properties
-    object[key] = val
-  object
-
-knexjs = require("knex")
-
-
-getKnex = (knexOptions, dbname) ->
-  options = extend({}, knexOptions)
-  if dbname?
-    options.connection = extend({}, knexOptions.connection)
-    options.connection.database = dbname
-  return knexjs(options)
-
-
+#db = require "../db"
 
 debug  = require("debug")("sqladmin:services:api")
+{extend, Promise} = require "../util"
+knexjs = require "knex"
+
+onError = (err, res) ->
+  debug "onerror", err
+  res.status(500)
+    .json { ErrorMessage: err.message, Error: err }
+
+knexStorage = {}
+
+getKnex = (session, dbname = "") ->
+  hostKey = "#{session.databaseType}@#{session.connectionOptions.host}:#{session.connectionOptions.port}/#{dbname}"
+  if !knexStorage[hostKey]?
+    options = {
+      client: session.databaseType
+      connection: extend {}, session.connectionOptions
+    }
+    if dbname?
+      options.connection.database = dbname
+    knexStorage[hostKey] = knexjs(options)
+  return knexStorage[hostKey]
+
+
+
+
+data = {}
+data["pg"] = (session) ->
+
+  raw = (query, dbname = "postgres") ->
+    return new Promise (resolve, reject) ->
+      debug "pg - raw", query
+      knex = getKnex(session, dbname)
+      debugger;
+      return knex.raw(query).then (result) ->
+        resolve(result)
+      , reject
+
+  return {
+    database:
+      get: () ->
+        return new Promise (resolve, reject) ->
+          q = "SELECT datname as name FROM pg_database WHERE datistemplate = false;"
+          return raw(q).then (result) ->
+            resolve(result.rows)
+          , reject
+    table:
+      get: (dbname, schema) ->
+        return getKnex(session, dbname)("information_schema.tables")
+          .select("table_name as name")
+          .where({ table_schema: schema })
+          .orderBy('table_name', 'desc')
+    schema:
+      get: (dbname) ->
+        return getKnex(session, dbname)("information_schema.tables")
+            .distinct("table_schema as name")
+            .orderBy('table_schema', 'desc')
+    raw: (query, dbname) ->
+      return new Promise (resolve, reject) ->
+        return raw(query, dbname).then (result) ->
+          resolve(result.rows)
+        , reject
+  }
+
+data["mysql"] = (session) ->
+
+  raw = (query, dbname) ->
+    return new Promise (resolve, reject) ->
+      debug "mysql - raw", query
+      knex = getKnex(session, dbname)
+      return knex.raw(query).then (result) ->
+        #debug "mysql - raw", result
+        resolve(result)
+      , reject
+
+  return {
+    database:
+      get: () ->
+        return new Promise (resolve, reject) ->
+          return raw("SHOW DATABASES;").then (result) ->
+            propName = result[1][0].name
+            d = []
+            for r in result[0]
+              d.push { name: r[propName] }
+            resolve(d)
+          , reject
+    table:
+      get: (dbname, schema) ->
+        return new Promise (resolve, reject) ->
+          return raw("SHOW FULL TABLES FROM #{dbname};").then (result) ->
+            propName = result[1][0].name
+            d = []
+            for r in result[0]
+              d.push { name: r[propName] }
+            resolve(d)
+
+          , reject
+    schema:
+      get: (dbname) ->
+        return new Promise (resolve, reject) ->
+          resolve([{ name: "mysql" }])
+    raw: raw
+  }
+
+
+getDB = (session) ->
+  return data[session.databaseType](session)
+
+
+
+
+
+
 module.exports = (app, logic) ->
 
   return {
     before: (type, path) ->
       return (req, res, next) ->
-        if !req.session.knexOptions?
+        if !req.session.connectionOptions?
           res.redirect "/login"
         else
           next()
     get:
-      "/": (req, res, next) ->
-        logic.react.renderDynamic { path: "admin", disableServer: true }, req, res, next
+      "/": logic.react.renderDynamic { path: "admin", disableServer: true }
+
       "/api/schemas": (req, res, next) ->
+        debug "get - /api/schemas"
         if !req.query.dbname
           next()
-        knex = getKnex(req.session.knexOptions, req.query.dbname)
-        knex("information_schema.tables")
-          .distinct("table_schema as name")
-          .orderBy('table_schema', 'desc')
-          .then (result) ->
-            res.json result
+
+        resolve = (rows) ->
+          res.json rows
+        reject = (err) ->
+          onError(err, res)
+
+        getDB(req.session)
+          .schema
+          .get(req.query.dbname)
+          .then resolve, reject
 
       "/api/tables": (req, res, next) ->
+        debug "get - /api/tables"
         if !req.query.dbname || !req.query.schema
           next()
-        knex = getKnex(req.session.knexOptions, req.query.dbname)
-        knex("information_schema.tables")
-          .select("table_name as name")
-          .where({ table_schema: req.query.schema })
-          .orderBy('table_name', 'desc')
-          .then (result) ->
-            res.json result
-        , () ->
-          debug "rejected", arguments
-
+        resolve = (rows) ->
+          res.json rows
+        reject = (err) ->
+          onError(err, res)
+        getDB(req.session)
+          .table
+          .get(req.query.dbname, req.query.schema)
+          .then resolve, reject
 
       "/api/databases": (req, res, next) ->
-        knex = getKnex(req.session.knexOptions)
-        debug "getting databases", req.session.knexOptions
-        knex.raw("SELECT datname as name FROM pg_database WHERE datistemplate = false;").then (result) ->
-          #debug "result", result.rows
-          res.json result.rows
-        , () ->
-          debug "rejected", arguments
+        debug "get - /api/databases"
+
+        resolve = (rows) ->
+          debug "/api/databases - rows ", rows
+          res.json rows
+
+        reject = (err) ->
+          onError(err, res)
+
+        getDB(req.session)
+          .database
+          .get()
+          .then resolve, reject
+          .catch reject
+
     post:
       "/api/raw": (req, res, next) ->
-        if !req.body.query || !req.body.dbname
+        debug "get - /api/raw", req.body.query
+        if !req.body.query
           next()
-        knex = getKnex(req.session.knexOptions, req.body.dbname)
-        knex.raw(req.body.query).then (result) ->
-          res.json result.rows
-        , (err) ->
-          debug "rejected", err
-          res.json [{ ErrorMessage: err.message }] 
+
+        resolve = (rows) ->
+          res.json rows
+        reject = (err) ->
+          res.json [{ ErrorMessage: err.message }]
+
+        getDB(req.session).raw(req.body.query, req.body.dbname)
+          .then resolve, reject
+
+
 
   }
