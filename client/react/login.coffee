@@ -1,6 +1,6 @@
+{React} = require "../util"
 debug = require("debug")("sqladmin:react:login")
 
-React = require "react"
 ReactBootstrap = require "react-bootstrap"
 
 $ = require "jquery"

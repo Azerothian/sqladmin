@@ -5,7 +5,12 @@
 </div>
 
 <% block 'header' : %>
-  <script src="/lib/react/react.min.js" type="text/javascript"></script>
+  <script>
+  var React = require("react-atom-fork");
+  var jQuery = require("jquery");
+  var $ = jQuery;
+  window.$ = window.jQuery = jQuery;
+  </script>
 <% end %>
 
 <% block 'scripts' : %>

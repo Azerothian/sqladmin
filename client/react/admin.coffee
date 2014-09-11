@@ -1,4 +1,4 @@
-React = require "react"
+{React} = require "../util"
 BackboneMixin = require "../bb.mixin"
 
 {div, ul, li, a, thead, tbody, tr, th, td, h3} = React.DOM

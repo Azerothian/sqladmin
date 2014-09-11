@@ -1,70 +1,55 @@
 app = require "app"
 BrowserWindow = require "browser-window"
-
 Menu = require "menu"
 MenuItem = require('menu-item')
 
+
+
 debug = require("debug")("client:index")
 
-class Main
-  constructor: (@app) ->
-    @mainWindow = null
-    @initAppEvents()
-  initAppEvents: () =>
-    @app.on 'windows-all-closed', @onAllWindowsClosed
+app.on 'windows-all-closed', () ->
+  if process.platform != 'darwin' # not sure if i like this?
+    app.quit()
 
-  onAllWindowsClosed: () =>
-    if process.platform != 'darwin' # not sure if i like this?
-      @app.quit()
+mainWindow = null
 
-  loadWindow: (path, options) =>
-    @mainWindow = new BrowserWindow options
-    @mainWindow.on "close", () ->
-      @mainWindow = null
-    @mainWindow.loadUrl path
-    @mainWindow.openDevTools()
-    @mainWindow.show()
-    return @mainWindow
-
-  createMenu: () =>
-    #@menu = new Menu()
-    data = [{
-      label: "File"
-      submenu: [{
-        label: 'Reload'
-        click: =>
-          debug "reload"
-          @mainWindow.reloadIgnoringCache()
-      }, {
-        label: 'Toggle DevTools'
-        click: =>
-          debug "toggle"
-          @mainWindow.toggleDevTools()
-      },{
-        label: 'Quit'
-        click: ->
-          debug "quit"
-          app.quit()
-      }]
-    }]
-
-    #for item in data
-    #  @menu.append new MenuItem(item)
-    @menu = Menu.buildFromTemplate data
-
-    Menu.setApplicationMenu(@menu)
-
-
-console.log "exec main"
+menuData = [{
+  label: "File"
+  submenu: [{
+    label: 'Reload'
+    click: ->
+      debug "reload"
+      mainWindow.reloadIgnoringCache()
+  }, {
+    label: 'Toggle DevTools'
+    click: ->
+      debug "toggle"
+      mainWindow.toggleDevTools()
+  },{
+    label: 'Quit'
+    click: ->
+      debug "quit"
+      app.quit()
+  }]
+}]
 
 require("../server/app").then () ->
-  debug "create Window"
+  app.on 'ready', () ->
+    require('crash-reporter').start()
+    menu = Menu.buildFromTemplate menuData
+    Menu.setApplicationMenu menu
 
-main = new Main app
+    # Create the browser window.
+    mainWindow = new BrowserWindow {
+      width: 800
+      height: 600
+      frame: true
+    }
 
-win = main.loadWindow "localhost:6655", {
-  width: 800
-  height: 600
-  frame: true
-}
-main.createMenu()
+    # and load the index.html of the app.
+    mainWindow.loadUrl 'http://localhost:6655/'
+    #mainWindow.openDevTools()
+    mainWindow.show()
+    # Emitted when the window is closed.
+    mainWindow.on 'closed', () ->
+      mainWindow = null

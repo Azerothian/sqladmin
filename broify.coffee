@@ -38,7 +38,8 @@ createFile = (file) ->
     opts = {
       basedir: srcDir
       extensions: [".js", ".coffee", ".json"]
-      debug: true
+      #debug: true
+      externalRequireName: "breq"
     }
 
     b = browserify(opts)
@@ -49,6 +50,7 @@ createFile = (file) ->
     globalShim = {
       react: 'React || React'
       jquery: '$ || jQuery'
+      "react-atom-fork": 'React || React'
     }
 
     globalShim = bgshim.configure globalShim

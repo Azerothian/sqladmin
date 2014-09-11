@@ -1,4 +1,4 @@
-React = require "react"
+{React} = require "./util"
 {div} = React.DOM
 module.exports = React.createClass {
   getDefaultProps: ->

@@ -4,4 +4,5 @@ module.exports = {
       object[key] = val
     object
   Promise: require "native-or-bluebird"
+  React: require "react"
 }

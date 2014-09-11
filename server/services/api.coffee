@@ -110,10 +110,6 @@ getDB = (session) ->
   return data[session.databaseType](session)
 
 
-
-
-
-
 module.exports = (app, logic) ->
 
   return {

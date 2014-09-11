@@ -3,7 +3,7 @@ debug  = require("debug")("sqladmin:services:root")
 module.exports = (app, logic) ->
   return {
     get:
-      "/login": logic.react.renderDynamic { path: "login" }
+      "/login": logic.react.renderDynamic { path: "login", disableServer: true }
       "/logout": (req, res, next) ->
         req.session.destroy (err) ->
           res.redirect "/"

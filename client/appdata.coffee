@@ -1,6 +1,6 @@
 jQuery = require "jquery"
 Backbone = require "backbone"
-Backbone.$ = jQuery
+
 
 
 debug = require("debug")("sqladmin:appdata")
@@ -77,6 +77,7 @@ class AppData extends Backbone.Model
     rawQuery: undefined
 
   constructor: () ->
+    Backbone.$ = jQuery
     super
 
     @set 'rawdata', new RawData()
