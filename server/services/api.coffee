@@ -120,7 +120,7 @@ module.exports = (app, logic) ->
         else
           next()
     get:
-      "/": logic.react.renderDynamic { path: "admin", disableServer: true }
+      "/": logic.react.renderDynamic { path: "admin", disableServer: true, title: "SqlAdmin - Administration" }
 
       "/api/schemas": (req, res, next) ->
         debug "get - /api/schemas"
