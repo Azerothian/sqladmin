@@ -1,1 +1,1 @@
-apm install .
+npm install .
